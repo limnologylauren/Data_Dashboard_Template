@@ -24,22 +24,22 @@ bottomL = theme(text=element_text(size=pltSize),
       axis.text=element_text(size=numSize),
       legend.key=element_blank())
 
-blankTheme = theme(text=element_text(size=pltSize),
-      panel.grid.major.y=element_line(color='grey'),
-      panel.grid.minor=element_blank(),
-      panel.background = element_blank(),
-      axis.text=element_text(size=numSize),
-      axis.line=element_line(colour='black'),
-      legend.key=element_blank())
-
-legendTwoRow = guides(fill=guide_legend(nrow=2,byrow=T))
+# blankTheme = theme(text=element_text(size=pltSize),
+#       panel.grid.major.y=element_line(color='grey'),
+#       panel.grid.minor=element_blank(),
+#       panel.background = element_blank(),
+#       axis.text=element_text(size=numSize),
+#       axis.line=element_line(colour='black'),
+#       legend.key=element_blank())
+# 
+# legendTwoRow = guides(fill=guide_legend(nrow=2,byrow=T))
 
 bottomSlant = bottomL +
   #theme(axis.text.x = element_text(angle=45,hjust=0.5,vjust=0.5))
   theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
-
-bottomUpDown = bottomL +
-  theme(axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1))
+# 
+# bottomUpDown = bottomL +
+#   theme(axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1))
   
 
 dateX = scale_x_date(date_labels = dateFormat,
@@ -58,28 +58,28 @@ month_six = scale_x_date(date_labels = dateFormat,
                          date_breaks = '6 month')
 
 
-grays = c("#EEEEEE",
-          '#CCCCCC',
-          '#999999',
-          '#666666')
+# grays = c("#EEEEEE",
+#           '#CCCCCC',
+#           '#999999',
+#           '#666666')
+# 
+# conduc_lower_limit = 200
+# 
+# grays = rep(grays,3)
 
-conduc_lower_limit = 200
-
-grays = rep(grays,3)
-
-cbbPalette <- c("#999999", # Hwy 93
-                "#009E73",
-                "#56B4E9",
-                "#F0E442",
-                "#E69F00", # Mulberry
-                "#0072B2",
-                "#D55E00",
-                "#CC79A7",
-                "#000000")
-cbbPaletteLong = c(cbbPalette,rev(cbbPalette),cbbPalette)
+# cbbPalette <- c("#999999", # Hwy 93
+#                 "#009E73",
+#                 "#56B4E9",
+#                 "#F0E442",
+#                 "#E69F00", # Mulberry
+#                 "#0072B2",
+#                 "#D55E00",
+#                 "#CC79A7",
+#                 "#000000")
+# cbbPaletteLong = c(cbbPalette,rev(cbbPalette),cbbPalette)
 
 # Read in the data, and format the date column to date variable type
-data = read_csv("Data/CPF_reservoir_chemistry_up_to_20230907.csv") %>%
+data = read_csv("Data/Data_Input.csv") %>%
   mutate(Date = as.Date(Date, format = "%m/%d/%Y"),
          Site = str_to_title(Site)) %>%
   arrange(Date)
@@ -97,7 +97,10 @@ data_long = data %>%
 # The 'simple' column provides the column name in the data, and the
 #  'combined' column has the variable with units, and will be used to 
 #  make the y-label title of the plots.
-units_list = read_xlsx("Data/Units_Cam_Peak.xlsx")
+name_conversion = read_xlsx("Data/Data_Names.xlsx")
+
+allAnalytes = name_conversion %>%
+  pull(DataColumn)
 
 # Each boxplot and scatterplot are generated in the same way, so to save
 #  space, these two functions are created here, and called when each plot
@@ -112,9 +115,9 @@ make_boxplot <- function(data, var, sites, dateRange){
     filter(!is.na(!!as.symbol(var)),
            Site %in% sites)
   
-  yLab = units_list %>%
-    filter(simple == var) %>%
-    pull(combined)
+  yLab = name_conversion %>%
+    filter(DataColumn == var) %>%
+    pull(PlotLabel)
   
   plot_output = ggplot(data_plot) + 
     geom_boxplot(aes_string(x='site_code',
@@ -124,7 +127,6 @@ make_boxplot <- function(data, var, sites, dateRange){
          x='',
          fill="") +
     guides(fill = guide_legend(ncol=2))+
-#    scale_fill_manual(guide=guide_legend(ncol=2)) +
     bottomSlant
   
   plot_output
@@ -157,9 +159,9 @@ make_overtime <- function(data, var, sites, dateRange){
       last(data_plot$Date %>% sort())
     ) %/% months(1)
   
-  yLab = units_list %>%
-    filter(simple == var) %>%
-    pull(combined)
+  yLab = name_conversion %>%
+    filter(DataColumn == var) %>%
+    pull(PlotLabel)
   
   plot_output = ggplot(data_plot) +
     geom_point(aes_string(x = 'Date',
@@ -190,239 +192,24 @@ make_overtime <- function(data, var, sites, dateRange){
 #### is an output$plotName. 
 server <- function(input, output) {
   
+  #allAnalytes = "ChlA"
+  for(a1 in allAnalytes){
+    local({
+    a = a1
+    plotName1 = paste0(a,"_Time")
+    output[[plotName1]] <<- renderPlot({
+      drTime = input[[paste0("DateRange",a)]]
+      sitesTime = input[[paste0("SiteChoice",a)]]
+      make_overtime(data,a,sitesTime,drTime)
+    })
+    
+    plotName2 = paste0(a,"_Box")
+    output[[plotName2]] <<- renderPlot({
+      drBox = input[[paste0("BoxDateRange",a)]]
+      sitesBox = input[[paste0("BoxSiteChoice",a)]]
+      make_boxplot(data,a,sitesBox,drBox)
+    })
+    })
+  }
 
-  output$TSS_Time <- renderPlot({
-    dr = input$DateRangeTSS
-    sites = input$SiteChoiceTSS
-    plot = make_overtime(data,varName,sites,dr)
-    plot
-  })
-  output$TSS_Box <- renderPlot({
-    dr = input$BoxDateRangeTSS
-    sites = input$BoxSiteChoiceTSS
-    plot = make_boxplot(data,'TSS',sites,dr)
-    plot
-  })  
-
-  output$pH_Time <- renderPlot({
-    dr = input$DateRangepH
-    sites = input$SiteChoicepH
-    plot = make_overtime(data,'pH',sites,dr)
-    plot
-  })
-  output$pH_Box <- renderPlot({
-    dr = input$BoxDateRangepH
-    sites = input$BoxSiteChoicepH
-    plot = make_boxplot(data,'pH',sites,dr)
-    plot
-  })
-  
-  output$Turbidity_Time <- renderPlot({
-    dr = input$DateRangeTurbidity
-    sites = input$SiteChoiceTurbidity
-    plot = make_overtime(data,'Turbidity',sites,dr)
-    plot
-  })
-  output$Turbidity_Box <- renderPlot({
-    dr = input$BoxDateRangeTurbidity
-    sites = input$BoxSiteChoiceTurbidity
-    plot = make_boxplot(data,'Turbidity',sites,dr)
-    plot
-  })
-  
-  output$ChlA_Time <- renderPlot({
-    dr = input$DateRangeChlA
-    sites = input$SiteChoiceChlA
-    plot = make_overtime(data,'ChlA',sites,dr)
-    plot
-  })
-  output$ChlA_Box <- renderPlot({
-    dr = input$BoxDateRangeChlA
-    sites = input$BoxSiteChoiceChlA
-    plot = make_boxplot(data,'ChlA',sites,dr)
-    plot
-  })
-  
-  output$DOC_Time <- renderPlot({
-    dr = input$DateRangeDOC
-    sites = input$SiteChoiceDOC
-    plot = make_overtime(data,'DOC',sites,dr)
-    plot
-  })
-  output$DOC_Box <- renderPlot({
-    dr = input$BoxDateRangeDOC
-    sites = input$BoxSiteChoiceDOC
-    plot = make_boxplot(data,'DOC',sites,dr)
-    plot
-  })
-  
-  output$DTN_Time <- renderPlot({
-    dr = input$DateRangeDTN
-    sites = input$SiteChoiceDTN
-    plot = make_overtime(data,'DTN',sites,dr)
-    plot
-  })
-  output$DTN_Box <- renderPlot({
-    dr = input$BoxDateRangeDTN
-    sites = input$BoxSiteChoiceDTN
-    plot = make_boxplot(data,'DTN',sites,dr)
-    plot
-  })
-  
-  output$ANC_Time <- renderPlot({
-    dr = input$DateRangeANC
-    sites = input$SiteChoiceANC
-    plot = make_overtime(data,'ANC',sites,dr)
-    plot
-  })
-  output$ANC_Box <- renderPlot({
-    dr = input$BoxDateRangeANC
-    sites = input$BoxSiteChoiceANC
-    plot = make_boxplot(data,'ANC',sites,dr)
-    plot
-  })
-  
-  output$SC_Time <- renderPlot({
-    dr = input$DateRangeSC
-    sites = input$SiteChoiceSC
-    plot = make_overtime(data,'SC',sites,dr)
-    plot
-  })
-  output$SC_Box <- renderPlot({
-    dr = input$BoxDateRangeSC
-    sites = input$BoxSiteChoiceSC
-    plot = make_boxplot(data,'SC',sites,dr)
-    plot
-  })
-  
-  output$Na_Time <- renderPlot({
-    dr = input$DateRangeNa
-    sites = input$SiteChoiceNa
-    plot = make_overtime(data,'Na',sites,dr)
-    plot
-  })
-  output$Na_Box <- renderPlot({
-    dr = input$BoxDateRangeNa
-    sites = input$BoxSiteChoiceNa
-    plot = make_boxplot(data,'Na',sites,dr)
-    plot
-  })
-  
-  output$NH4_Time <- renderPlot({
-    dr = input$DateRangeNH4
-    sites = input$SiteChoiceNH4
-    plot = make_overtime(data,'NH4',sites,dr)
-    plot
-  })
-  output$NH4_Box <- renderPlot({
-    dr = input$BoxDateRangeNH4
-    sites = input$BoxSiteChoiceNH4
-    plot = make_boxplot(data,'NH4',sites,dr)
-    plot
-  })
-  
-  output$K_Time <- renderPlot({
-    dr = input$DateRangeK
-    sites = input$SiteChoiceK
-    plot = make_overtime(data,'K',sites,dr)
-    plot
-  })
-  output$K_Box <- renderPlot({
-    dr = input$BoxDateRangeK
-    sites = input$BoxSiteChoiceK
-    plot = make_boxplot(data,'K',sites,dr)
-    plot
-  })
-  
-  output$Mg_Time <- renderPlot({
-    dr = input$DateRangeMg
-    sites = input$SiteChoiceMg
-    plot = make_overtime(data,'Mg',sites,dr)
-    plot
-  })
-  output$Mg_Box <- renderPlot({
-    dr = input$BoxDateRangeMg
-    sites = input$BoxSiteChoiceMg
-    plot = make_boxplot(data,'Mg',sites,dr)
-    plot
-  })
-  
-  output$Ca_Time <- renderPlot({
-    dr = input$DateRangeCa
-    sites = input$SiteChoiceCa
-    plot = make_overtime(data,'Ca',sites,dr)
-    plot
-  })
-  output$Ca_Box <- renderPlot({
-    dr = input$BoxDateRangeCa
-    sites = input$BoxSiteChoiceCa
-    plot = make_boxplot(data,'Ca',sites,dr)
-    plot
-  })
-  
-  output$F_Time <- renderPlot({
-    dr = input$DateRangeF
-    sites = input$SiteChoiceF
-    plot = make_overtime(data,'F',sites,dr)
-    plot
-  })
-  output$F_Box <- renderPlot({
-    dr = input$BoxDateRangeF
-    sites = input$BoxSiteChoiceF
-    plot = make_boxplot(data,'F',sites,dr)
-    plot
-  })
-  
-  output$Cl_Time <- renderPlot({
-    dr = input$DateRangeCl
-    sites = input$SiteChoiceCl
-    plot = make_overtime(data,'Cl',sites,dr)
-    plot
-  })
-  output$Cl_Box <- renderPlot({
-    dr = input$BoxDateRangeCl
-    sites = input$BoxSiteChoiceCl
-    plot = make_boxplot(data,'Cl',sites,dr)
-    plot
-  })
-  
-  output$NO3_Time <- renderPlot({
-    dr = input$DateRangeNO3
-    sites = input$SiteChoiceNO3
-    plot = make_overtime(data,'NO3',sites,dr)
-    plot
-  })
-  output$NO3_Box <- renderPlot({
-    dr = input$BoxDateRangeNO3
-    sites = input$BoxSiteChoiceNO3
-    plot = make_boxplot(data,'NO3',sites,dr)
-    plot
-  })
-  
-  output$PO4_Time <- renderPlot({
-    dr = input$DateRangePO4
-    sites = input$SiteChoicePO4
-    plot = make_overtime(data,'PO4',sites,dr)
-    plot
-  })
-  output$PO4_Box <- renderPlot({
-    dr = input$BoxDateRangePO4
-    sites = input$BoxSiteChoicePO4
-    plot = make_boxplot(data,'PO4',sites,dr)
-    plot
-  })
-  
-  output$SO4_Time <- renderPlot({
-    dr = input$DateRangeSO4
-    sites = input$SiteChoiceSO4
-    plot = make_overtime(data,'SO4',sites,dr)
-    plot
-  })
-  output$SO4_Box <- renderPlot({
-    dr = input$BoxDateRangeSO4
-    sites = input$BoxSiteChoiceSO4
-    plot = make_boxplot(data,'SO4',sites,dr)
-    plot
-  })
-  
 }
