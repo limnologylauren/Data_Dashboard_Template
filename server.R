@@ -15,8 +15,8 @@ alphas = c(
   #rep(.8,length(cbPalette)),
   rep(.7,length(cbPalette)),
   #rep(.6,length(cbPalette)),
-  #rep(.5,length(cbPalette)),
-  rep(.4,length(cbPalette)),
+  rep(.5,length(cbPalette)),
+  #rep(.4,length(cbPalette)),
   rep(.3,length(cbPalette))
 )
 # Adding multiple alpha values in case there are more than 9 sites used in a
