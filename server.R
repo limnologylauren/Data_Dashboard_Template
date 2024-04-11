@@ -2,12 +2,30 @@ library(tidyverse)
 library(readxl)
 options(ggrepel.max.overlaps=Inf)
 
-# Values used in each plot for consistency. Colorblind friendly colors. 
 pltSize = 25
 numSize = 25
 shapes = c(16,15,17,18,25,3,8,4,9,11)
-shapes = rep(shapes,10)
-shapesLong = c(shapes,rev(shapes),shapes)
+cbPalette =c("#999999","#009E73","#56B4E9", "#F0E442",
+             "#E69F00","#0072B2","#D55E00", "#CC79A7",
+             "#000000") # This color palette is colorblind friendly
+
+alphas = c(
+  rep(1,length(cbPalette)),
+  #rep(.9,length(cbPalette)),
+  #rep(.8,length(cbPalette)),
+  rep(.7,length(cbPalette)),
+  #rep(.6,length(cbPalette)),
+  #rep(.5,length(cbPalette)),
+  rep(.4,length(cbPalette)),
+  rep(.3,length(cbPalette))
+)
+# Adding multiple alpha values in case there are more than 9 sites used in a
+#  single boxplot
+
+shapes = rep(shapes,length(cbPalette))
+cbPalette = rep(cbPalette,length(shapes))
+# Having a different number of distinct shapes and colors prevents pairs of 
+#  colors and shapes from being reused.
 dateFormat = "%b '%y"
 
 bottomL = theme(text=element_text(size=pltSize),
@@ -19,23 +37,8 @@ bottomL = theme(text=element_text(size=pltSize),
       axis.text=element_text(size=numSize),
       legend.key=element_blank())
 
-# blankTheme = theme(text=element_text(size=pltSize),
-#       panel.grid.major.y=element_line(color='grey'),
-#       panel.grid.minor=element_blank(),
-#       panel.background = element_blank(),
-#       axis.text=element_text(size=numSize),
-#       axis.line=element_line(colour='black'),
-#       legend.key=element_blank())
-# 
-# legendTwoRow = guides(fill=guide_legend(nrow=2,byrow=T))
-
 bottomSlant = bottomL +
-  #theme(axis.text.x = element_text(angle=45,hjust=0.5,vjust=0.5))
   theme(axis.text.x = element_text(angle=45,hjust=1,vjust=1))
-# 
-# bottomUpDown = bottomL +
-#   theme(axis.text.x = element_text(angle = 90,vjust=0.5,hjust=1))
-  
 
 dateX = scale_x_date(date_labels = dateFormat,
                      date_breaks = '1 month')
@@ -51,27 +54,6 @@ month_three = scale_x_date(date_labels = dateFormat,
 
 month_six = scale_x_date(date_labels = dateFormat,
                          date_breaks = '6 month')
-
-
-# grays = c("#EEEEEE",
-#           '#CCCCCC',
-#           '#999999',
-#           '#666666')
-# 
-# conduc_lower_limit = 200
-# 
-# grays = rep(grays,3)
-
-# cbbPalette <- c("#999999", # Hwy 93
-#                 "#009E73",
-#                 "#56B4E9",
-#                 "#F0E442",
-#                 "#E69F00", # Mulberry
-#                 "#0072B2",
-#                 "#D55E00",
-#                 "#CC79A7",
-#                 "#000000")
-# cbbPaletteLong = c(cbbPalette,rev(cbbPalette),cbbPalette)
 
 # Read in the data, and format the date column to date variable type
 data = read_csv("Data/Data_Input.csv") %>%
@@ -103,25 +85,52 @@ allAnalytes = name_conversion %>%
 make_boxplot <- function(data, var, sites, dateRange){
   dateStrt = as.Date(dateRange[1])
   dateEnd = as.Date(dateRange[2])
+  
+  # Extract a color for each site.
+  colrs = cbPalette[1:length(sites)]
+  alphs = alphas[1:length(sites)]
 
-  data_plot = data %>%
+  # If this data set doesn't have a "Site Code" column, then create one, and 
+  #  make it identical to the Site column.
+  if(!("Site Code" %in% names(data))){
+    data = data %>%
+      mutate('Site Code' = Site)
+  }
+  
+  data_plot_sort = data %>%
     filter(between(Date, dateStrt, dateEnd)) %>%
-    select(Site,site_code,all_of(var)) %>%
+    select(Site,`Site Code`,all_of(var)) %>%
     filter(!is.na(!!as.symbol(var)),
-           Site %in% sites)
+           Site %in% sites) %>%
+    arrange(Site)
+  
+  # By setting the site and site code to factors, that keeps them in the 
+  #  order specified by the levels(). The level order is determined by the 
+  #  previous table, which is sorted by Site alphabetically. Doing this
+  #  step ensures the x-axis order and legend order match.
+  data_plot = data_plot_sort %>%
+    mutate(Site = factor(Site, levels = data_plot_sort %>%
+                           pull(Site) %>%
+                           unique()),
+           `Site Code` = factor(`Site Code`, levels = data_plot_sort %>%
+                                  pull(`Site Code`) %>%
+                                  unique()))
   
   yLab = name_conversion %>%
     filter(DataColumn == var) %>%
     pull(PlotLabel)
   
   plot_output = ggplot(data_plot) + 
-    geom_boxplot(aes_string(x='site_code',
-                            y=var,
-                            fill='Site')) +
+    geom_boxplot(aes(x=`Site Code`,
+                     y=get(var),
+                     fill = Site,
+                     alpha = Site)) +
     labs(y= yLab,
          x='',
-         fill="") +
-    guides(fill = guide_legend(ncol=2))+
+         fill="",
+         alpha = "") +
+    scale_fill_manual(values = colrs, guide=guide_legend(ncol=2)) +
+    scale_alpha_manual(values = alphs) +
     bottomSlant
   
   plot_output
@@ -137,8 +146,9 @@ make_overtime <- function(data, var, sites, dateRange){
   data_plot = data %>%
     # Filters to the right date range
     filter(between(Date, dateStrt, dateEnd)) %>%
-    # Selects only the columns we care about, date, location, variable, color
+    # Selects only the columns we care about, date, location, variable
     select(Site, all_of(var), Date) %>%
+    # Remove any missing values, and plot only the selected sites.
     filter(!is.na(!!as.symbol(var)),
            Site %in% sites)
   
@@ -147,6 +157,7 @@ make_overtime <- function(data, var, sites, dateRange){
     length()
   
   shps = shapes[1:n_sites]
+  colrs= cbPalette[1:n_sites]
 
   # Calculate number of months of the plot. Used later to format x-axis.  
   n_mon = interval(
@@ -154,16 +165,20 @@ make_overtime <- function(data, var, sites, dateRange){
       last(data_plot$Date %>% sort())
     ) %/% months(1)
   
+  # Extract the desired y-axis label from the data name values.
   yLab = name_conversion %>%
     filter(DataColumn == var) %>%
     pull(PlotLabel)
   
   plot_output = ggplot(data_plot) +
-    geom_point(aes_string(x = 'Date',
-                          y = var,
-                          color = 'Site', shape = 'Site', fill = 'Site'),
-               size=5) +
-    scale_shape_manual(values = shps, guide = guide_legend(ncol=2))+
+    geom_point(aes(x=Date,
+                   y=get(var),
+                   color = Site, shape = Site, fill = Site),
+               size = 5) + 
+    scale_shape_manual(values = shps,
+                       guide = guide_legend(ncol=2))+
+    scale_color_manual(values = colrs) +
+    scale_fill_manual(values = colrs) +
     labs(x='',color='',shape='',fill='',
          y = yLab)+
     bottomSlant
@@ -187,32 +202,42 @@ make_overtime <- function(data, var, sites, dateRange){
 #### is an output$plotName. 
 server <- function(input, output) {
   
-  #allAnalytes = "ChlA"
   for(a1 in allAnalytes){
     local({
-    a = a1
-    plotName1 = paste0(a,"_Time")
-    output[[plotName1]] <<- renderPlot({
-      drTime = input[[paste0("DateRange",a)]]
-      sitesTime = input[[paste0("SiteChoice",a)]]
-      plt = make_overtime(data,a,sitesTime,drTime)
-      if(input[[paste0("LogYes",a)]]){
-        plt = plt + scale_y_log10()
-      }
-      plt
-    })
+      a = a1
+      plotName1 = paste0(a,"_Time")
+      output[[plotName1]] <<- renderPlot({
+        drTime = input[[paste0("DateRange",a)]]
+        sitesTime = input[[paste0("SiteChoice",a)]]
+        plt = make_overtime(data,a,sitesTime,drTime)
+        if(input[[paste0("LogYes",a)]]){
+          plt = plt + scale_y_log10()
+        }
+        plt
+      })
     
-    plotName2 = paste0(a,"_Box")
-    output[[plotName2]] <<- renderPlot({
-      drBox = input[[paste0("BoxDateRange",a)]]
-      sitesBox = input[[paste0("BoxSiteChoice",a)]]
-      plt = make_boxplot(data,a,sitesBox,drBox)
-      if(input[[paste0("BoxLogYes",a)]]){
-        plt = plt + scale_y_log10()
-      }
-      plt
+      plotName2 = paste0(a,"_Box")
+      output[[plotName2]] <<- renderPlot({
+        drBox = input[[paste0("BoxDateRange",a)]]
+        sitesBox = input[[paste0("BoxSiteChoice",a)]]
+        plt = make_boxplot(data,a,sitesBox,drBox)
+        if(input[[paste0("BoxLogYes",a)]]){
+          plt = plt + scale_y_log10()
+        }
+        plt
+      })
     })
-    })
+    # This previous section needs to be run locally (with the local({}),
+    #  function, and have the iteration variable (a1) saved to another
+    #  variable (a) in order to function as expected. If not saved locally,
+    #  only the final value of the iteration variable will be saved.
   }
-
+  
+  # Additional plots can be created here, following the format below:
+  #
+  #  output$plotName = renderPlot({
+  #    Code to make your plot
+  #  })
+  #
+  #  After creating the plot, it can be drawn on the UI by calling "plotName".
 }
