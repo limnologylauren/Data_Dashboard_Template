@@ -245,12 +245,16 @@ ui <- fluidPage(
   title=tabTitle, # This title is what the tab displayes if viewed on the web.
   theme = bs_theme(version = 5, bootswatch = 'minty'),
   # Anything saved outside of the 'mainRow' is always present, regardless of which
-  #  tab the user has selected.
-  column(10, offset=1,titlePanel(img(src='HeaderImg.png', width="100%"))),
+  #  tab the user has selected. Below is an example of how to add an image to
+  #  the top of the page that would always be present.
+  #
+  #  column(10, offset=1,titlePanel(img(src='HeaderImg.png', width="100%"))),
+  #
   mainRow,
-  #### This is just formatting stuff to have an some space around the bottom of the page
+  #### This is just to have an some space around the bottom of the page
   br(),
   br(),
+  # Below are the HTML formating options, can be customized as desired.
   tags$head(tags$style(HTML('* {font-family: "Arial";
                                 font-size: 18px};')))
 )
