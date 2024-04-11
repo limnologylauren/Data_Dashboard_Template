@@ -1,6 +1,5 @@
 library(tidyverse)
 library(readxl)
-library(lubridate)
 library(bslib)
 
 # Name that's listed on browser tab
@@ -112,7 +111,12 @@ for(a in allAnalytes){
               paste0("SiteChoice",a), # Create a site input for this analyte
               "Site",
               choices = all_sites,
-              selected = start_sites, multiple = T),width = 3),
+              selected = start_sites, multiple = T),
+            checkboxInput(
+              paste0("LogYes",a),
+              "Log Scale",
+              value = F),
+            width = 3),
           # Access the analyte_Time plot from the server.R file
           mainPanel(plotOutput(paste0(a,"_Time"), height = pltH)))),
       tabPanel(
@@ -128,7 +132,12 @@ for(a in allAnalytes){
               paste0("BoxSiteChoice",a), # Creates a site input for the boxplot
               "Site",
               choices = all_sites,
-              selected = start_sites, multiple = T),width = 3),
+              selected = start_sites, multiple = T),
+            checkboxInput(
+              paste0("BoxLogYes",a),
+              "Log Scale",
+              value = F),
+            width = 3),
           # Access the analyte_Box plot from the server.R file
           mainPanel(plotOutput(paste0(a,"_Box"),height = pltH)))))))
 }

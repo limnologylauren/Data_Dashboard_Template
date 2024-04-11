@@ -1,10 +1,5 @@
 library(tidyverse)
 library(readxl)
-library(lubridate)
-library(ggrepel)
-library(gridExtra)
-library(ggpubr)
-library(zoo)
 options(ggrepel.max.overlaps=Inf)
 
 # Values used in each plot for consistency. Colorblind friendly colors. 
@@ -200,14 +195,22 @@ server <- function(input, output) {
     output[[plotName1]] <<- renderPlot({
       drTime = input[[paste0("DateRange",a)]]
       sitesTime = input[[paste0("SiteChoice",a)]]
-      make_overtime(data,a,sitesTime,drTime)
+      plt = make_overtime(data,a,sitesTime,drTime)
+      if(input[[paste0("LogYes",a)]]){
+        plt = plt + scale_y_log10()
+      }
+      plt
     })
     
     plotName2 = paste0(a,"_Box")
     output[[plotName2]] <<- renderPlot({
       drBox = input[[paste0("BoxDateRange",a)]]
       sitesBox = input[[paste0("BoxSiteChoice",a)]]
-      make_boxplot(data,a,sitesBox,drBox)
+      plt = make_boxplot(data,a,sitesBox,drBox)
+      if(input[[paste0("BoxLogYes",a)]]){
+        plt = plt + scale_y_log10()
+      }
+      plt
     })
     })
   }
