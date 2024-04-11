@@ -44,5 +44,11 @@ Optional Column:
 
 ## Modifying the Dashboard ##
 ### Number of Categories ###
-To update the number of category tabs that appear, modify [this](ui.R#L238) section of the `ui.R` file.
+The default dashboard has four categories of analytes. The section of the dashboard that builds the catgeory tabs isn't dynamic, and must be updated to create a different number of category tabs. To update the number of category tabs that appear, modify [this](ui.R#L244-245) section of the `ui.R` file. Add or remove lines to match the desired number of category tabs. The category_ordered and category_pages list lengths are dynamically updated.
+
+### Number of Analytes within a Category ###
+The default dashboard has logic to allow between one and six analytes in each category. If more analytes within a category are needed, [this](ui.R#L202-213) section of `ui.R` can be updated to handle the desired number of analytes.
+
+### Adding tabs for images ###
+The default dashboard has one tab, Sampling Methods, that displays an image rather than a plot. To add similar tabs, this can be done by modifying `ui.R`. First a fluidPage needs to be created, as seen [here](ui.R#L220-224). Then that created fluidPage needs to be included in the list of main tabs, as seen [here](ui.R#247).
 

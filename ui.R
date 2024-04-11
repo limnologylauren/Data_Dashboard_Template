@@ -199,9 +199,18 @@ for(c in allCategories){
                   get(analyte_tabs[5]),
                   get(analyte_tabs[6])
       )))
-  }
-  # Only defined options for 6 or less analytes in a category. More could 
-  #  be added, by following the pattern above.
+    } # #else if(length(analyte_tabs)==X){
+  # # assign(pageNameVar,fluidPage(
+  # #   tabsetPanel(get(analyte_tabs[1]),
+  # #               get(analyte_tabs[2]),
+  # #               get(analyte_tabs[3]),
+  # #               get(analyte_tabs[4]),
+  # #               get(analyte_tabs[5]),
+  # #               get(analyte_tabs[6]),
+  # #                                ...,
+  # #               get(analyte_tabs[X])
+  # #   )))
+  # # }
 }
 
 ###
@@ -232,8 +241,9 @@ mainRow = tabsetPanel(
       tabPanel(category_ordered[2],get(category_pages[2])),
       tabPanel(category_ordered[3],get(category_pages[3])),
       tabPanel(category_ordered[4],get(category_pages[4])),
-      # tabPanel(category_ordered[5],get(category_pages[5])),
-      # tabPanel(category_ordered[6],get(category_pages[6])),
+      # # tabPanel(category_ordered[5],get(category_pages[5])),
+      # # tabPanel(category_ordered[6],get(category_pages[6])),
+      
       tabPanel("Sampling Methods",rmrs_page)
     ),
     offset = 1)
