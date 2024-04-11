@@ -1,6 +1,6 @@
 # Data_Dashboard_Template
 
-## Overivew
+## Overview
 
 This tool can be used to visualize post-fire water quality data. The template provides both a scatterplot and boxplot for each analyte, separated by sampling site. The analytes are grouped by categories that appear as unique tabs in the dashboard UI.
 
@@ -37,7 +37,12 @@ This file contains the data that will be displayed on the dashboard. Details on 
 Required Columns:
 - Date: Expected format is mm/dd/yyyy
 - Site: This column is used to separate the data into different sampling locations. 
-- Data: Any number of columns that contain numeric values. The name of each column must be unique, and the names of the columns to plot must be included in the Data/Data_Names.xlsx file.
+- Data: Any number of columns that contain numeric values. The name of each column must be unique, and the names of the columns to plot must be included in the Data/Data_Names.xlsx file. 
 Optional Column:
 - Site Code: If provided, this column is used for x-axis labels when making boxplots. If not provided, the values from the Site column will be used as x-axis labels.
+
+
+## Modifying the Dashboard ##
+### Number of Categories ###
+To update the number of category tabs that appear, modify [this](ui.R#L238) section of the `ui.R` file.
 
