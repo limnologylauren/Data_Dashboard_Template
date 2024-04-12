@@ -28,27 +28,27 @@ If you're using the R Console:
 This R file is the file that manages the whole data dashboard application. This file ensures that all the needed libraries are installed, and then starts the dashboard. There is very little content in this file.
 
 ### ui.R ###
-This file generates the UI that is presented to the user. This file uses the information provided in `Data/Data_Names.xlsx` to generate category tabs and analyte tabs. For each analyte this file creates fields for users to input options that are used to generate the plots.
+This file generates the UI that is presented to the user. This file uses the information provided in `Data/Data_Names.xlsx` to generate category tabs and analyte tabs. For each analyte, this file creates fields for users to input options that are used to generate the plots.
 
 ### server.R ###
 This file builds the plots based on input values from the UI. Once this file builds the plots, it returns the plot image to `ui.R`, to be presented to the user on the dashboard.
 
 ### Data/Data_Names.xlsx ###
-This file contains one row for each analyte, and provides `ui.R` with the information on how to group analytes, what to label analytes as. It also provides information to `server.R` that is necessary to label the y-axis of the plots.
+This file contains one row for each analyte, and provides `ui.R` with the information on how to group analytes, and what to label analytes as. It also provides information to `server.R` that is necessary to label the y-axis of the plots.
 
 ### Data/Data_Info.csv ###
-This file contains the actual data to be plotted, along with the date and site for each sample that was measured.
+This file contains the actual data to be plotted, along with the date and site that each measurement was made at.
 
 ## Using your own data ##
 The Data Dashboard Template will dynamically generate plots, labels, tabs, and tab groups, based on the contents of the `Data/Data_Input.csv` and `Data/Data_Names.xlsx` files. 
 
 ### Data/Data_Names.xlsx ###
-This file is used to determine what columns from the input data file get plotted, what the plot and tab labels are, and how the analytes get grouped together. The required columns, and their contents are as follows. Each row in this file references a single analyte in the input data.
+This file is used to determine what columns from the input data file get plotted, what the plot and tab labels are, and how the analytes get grouped together. Each row in this file references a single analyte in the input data. The required columns, and their contents are as follows. 
 Required Columns:
 - DataColumn: This column contains the names of the data columns in the `Data/Data_Input.csv` file
 - DisplayName: These values are the names displayed on analyte's tab in the UI.
 - PlotLabel: These values will be used as y-axis labels for the plots.
-- Category: This colum determines what analytes get grouped together within a tab, as well as the name of that tab. The default dashboard assumes four distinct categories, and no more than six analytes within a category. Those assumtions can be changed, see the modifying the UI section below for details.  
+- Category: This colum determines what analytes get grouped together within a tab, as well as the name of that tab. The default dashboard assumes four distinct categories, and no more than six analytes within a category. Those assumtions can be changed, see the [modifying the dashboard](#modifying-the-dashboard) section below for details.  
 
 ### Data/Data_Input.csv ###
 This file contains the data that will be displayed on the dashboard. Details on the contets and formatting of the column are as follows.
@@ -64,7 +64,7 @@ This file is assumed to be a `csv` file. If your data needs to be saved as an Ex
 
 ## Modifying the Dashboard ##
 ### Number of Categories ###
-The default dashboard has four categories of analytes. The section of the dashboard that builds the catgeory tabs isn't dynamic, and must be updated to create a different number of category tabs. To update the number of category tabs that appear, modify [this](ui.R#L244-L245) section of the `ui.R` file. Add or remove lines to match the desired number of category tabs. The category_ordered and category_pages list lengths are dynamically updated.
+The default dashboard has four categories of analytes. The section of the dashboard that builds the catgeory tabs isn't dynamic, and must be updated to create a different number of category tabs. To update the number of category tabs that appear, modify [this](ui.R#L247-L248) section of the `ui.R` file. Add or remove lines to match the desired number of category tabs. The category_ordered and category_pages list lengths are dynamically updated.
 
 ### Number of Analytes within a Category ###
 The default dashboard has logic to allow between one and six analytes in each category. If more analytes within a category are needed, [this](ui.R#L202-L213) section of `ui.R` can be updated to handle the desired number of analytes.
@@ -72,4 +72,5 @@ The default dashboard has logic to allow between one and six analytes in each ca
 ### Adding tabs for images ###
 The default dashboard has one tab, Sampling Methods, that displays an image rather than a plot. To add similar tabs, this can be done by modifying `ui.R`. First a fluidPage needs to be created, as seen [here](ui.R#L220-L224). Then that created fluidPage needs to be included in the list of main tabs, as seen [here](ui.R#L247).
 
-###  ###
+### Adding Plots ###
+Any kind of plot that R can make can be added to the dashboar. In the `server.R` file, simply add the code needed to generate your plot inside the `server` function. The plot can reference input values from the UI, or can use static values if you'd like to display a specific plot to the user. An example static plot is already built [here](server.R#L238-L254) in the `server.R` file, but that plot is never displayed because it isn't refernced in `ui.R` anywhere. To see the plot, and an example of how to create new plot displays, remove the `#` form [these](ui.R#240-L242) lines to show the static plot.
