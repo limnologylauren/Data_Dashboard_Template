@@ -237,6 +237,9 @@ mainRow = tabsetPanel(
   fluidRow(
     column(10,
     tabsetPanel(
+      #tabPanel("Static Plot",fluidPage(
+      #  fluidRow(column(10,plotOutput("PlotName",height = '700px')))
+      #)),
       tabPanel(category_ordered[1],get(category_pages[1])),
       tabPanel(category_ordered[2],get(category_pages[2])),
       tabPanel(category_ordered[3],get(category_pages[3])),
@@ -245,6 +248,7 @@ mainRow = tabsetPanel(
       # # tabPanel(category_ordered[6],get(category_pages[6])),
       
       tabPanel("Sampling Methods",rmrs_page)
+
     ),
     offset = 1)
   )

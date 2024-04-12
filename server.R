@@ -233,11 +233,25 @@ server <- function(input, output) {
     #  only the final value of the iteration variable will be saved.
   }
   
-  # Additional plots can be created here, following the format below:
+  # Additional plots can be created here, and then added to the ui.R file.
   #
-  #  output$plotName = renderPlot({
-  #    Code to make your plot
-  #  })
+    output$PlotName = renderPlot({
+      #userInput1 = input$InputFieldName1
+      #userInput2 = input$InputFieldName2
+      plot_data = data %>%
+        filter(Site %in% c("Barnes Meadow Outflow",
+                           "Barnes Meadow Reservoir"),
+               between(Date,
+                       as.Date('2022-04-20'),
+                       as.Date('2023-01-15')))
+        
+      plot = ggplot(data = plot_data) +
+        geom_point(aes(x=Date, y=SO4, color = Site, shape = Site),
+                   size = 5) +
+        bottomL +
+        labs(x="", shape = "", color ="")
+      plot
+    })
   #
   #  After creating the plot, it can be drawn on the UI by calling "plotName".
 }
