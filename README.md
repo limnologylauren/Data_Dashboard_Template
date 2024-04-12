@@ -4,7 +4,7 @@
 
 This dashboard template uses R to visualize post-fire water quality data. The template provides both a scatterplot and boxplot for each analyte measured, separated by sampling site. The analytes are grouped by categories that appear as unique tabs in the dashboard UI. This template easily alows for additional plots, figures, and customizations to be added.  
 
-**_Note:_** This dashboard requires R to operate. R and RStudio (the integrated development environment for R) can be downloaded by following steps one and two [here](https://posit.co/download/rstudio-desktop/). 
+> **_Note:_** This dashboard requires R to operate. R and RStudio (the integrated development environment for R) can be downloaded by following steps one and two [here](https://posit.co/download/rstudio-desktop/). If needed, older versions of RStudio can be found [here](https://global.rstudio.com/products/rstudio/older-versions/)
 
 ## Using the Default Template ##
 
