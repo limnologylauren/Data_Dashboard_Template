@@ -12,11 +12,12 @@ This dashboard template uses R to visualize post-fire water quality data. The te
 
 If you're using RStudio:
 - Open the app.R file.
+- If this is the first time running the dashboard, type the following command in the R Console: `install.packages(c("tidyverse","shiny","readxl","bslib"))`
 - Select 'Run App' in the upper right corner.
 
 If you're using the R Console:
 ```
-> install.packages('shiny')
+> install.packages(c("tidyverse","shiny","readxl","bslib"))
 > library(shiny)
 > runApp("Path/To/The/Downloaded/Repo")
 ```
