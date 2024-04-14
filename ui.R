@@ -5,6 +5,22 @@ library(bslib)
 # Name that's listed on browser tab
 tabTitle = "Sample Data Dashboard for Post Fire Water Quality"
 
+q1 = "Where did this example data come from?"
+a1 = "This example data came from the " 
+url1 = "https://github.com/rossyndicate/CPF_reservoir_study_data/tree/v12.13.23b"
+link1 = a(" Cameron Peak Fire Reservoir Study Data",href = url1,target="_blank")
+a1 = paste0(a1,link1)
+
+q2 = "Where can I find the Marshall Fire data dashboard to look at an example FAQ section?"
+a2_1 = "The "
+url2 = "https://www.keepitcleanpartnership.org/post-fire-monitoring/"
+link2 = a("Marshall Fire Data Dashboard",href = url2,target = "_blank")
+a2_2 = " is hosted by the Keep It Clean Partnership. Additionally it can be found within the "
+url2_2 = "https://storymaps.arcgis.com/stories/5f19b8becef94ba3a537612b0332d99d"
+link2_2 = a("Coal Creek Monitoring Story Map.", href = url2_2, target = "_blank")
+
+a2 = paste0(a2_1,link2,a2_2,link2_2)
+
 # This section defines some messages that are displayed to users on different
 #  analyte pages. These use HTML to format the messages. In order for the info
 #  messages to be displayed, add the analyte name to the 'added_info' list below
@@ -247,7 +263,16 @@ mainRow = tabsetPanel(
       # # tabPanel(category_ordered[5],get(category_pages[5])),
       # # tabPanel(category_ordered[6],get(category_pages[6])),
       
-      tabPanel("Sampling Methods",rmrs_page)
+      tabPanel("Sampling Methods",rmrs_page),
+      tabPanel("FAQ",HTML( # A tab can also be fully built here.
+        "<br/>",
+        paste(
+          "(To follow these links, first select 'Open in Browser' above).","<br/>",
+          strong(q1),a1,"<br/>",
+          strong(q2),a2,
+          sep = "<br/>"
+        )
+      ))
 
     ),
     offset = 1)
