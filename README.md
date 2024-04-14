@@ -76,5 +76,9 @@ The default dashboard has one tab, Sampling Methods, that displays an image rath
 ### Adding Plots ###
 Any kind of plot that R can make can be added to the dashboard. In the `server.R` file, simply add the code needed to generate your plot inside the `server` function. The plot can reference input values from the UI, or can use static values if you'd like to display a specific plot to the user. An example static plot is already built [here](server.R#L238-L254) in the `server.R` file, but that plot is never displayed because it isn't referenced in `ui.R` anywhere. To see the plot, and an example of how to create new plot displays, remove the `#` form [these](ui.R#240-L242) lines to show the static plot.
 
+## References ##
+This dashboard template uses the following data set.  
+Struthers, S., Fegel, T., Willi, K., Rhoades, C., Ross, M. R. V., & Steele, B. G. (2023). ROSSyndicate Cameron Peak Fire (CPF) reservoir water quality data: Latest Release: 2021- 11/2023 Dataset (v12.13.23b) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.10372690
+
 ## Acknowledgements ##
 Thank you to the CU Boulder Coal Creek sampling team, the Coal Creek Monitoring project stakeholders, and to Adam King for technical support.
