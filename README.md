@@ -2,9 +2,9 @@
 
 ## Overview
 
-This dashboard template uses R to visualize post-fire water quality data. The template provides both a scatterplot and boxplot for each analyte measured, separated by sampling site. The analytes are grouped by categories that appear as unique tabs in the dashboard UI. This template easily alows for additional plots, figures, and customizations to be added.  
+This dashboard template uses R to visualize post-fire water quality data. The template provides both a scatterplot and boxplot for each analyte measured, separated by sampling site. The analytes are grouped by categories that appear as unique tabs in the dashboard UI. This template easily allows for additional plots, figures, and customizations to be added.  
 
-**_Note:_** This dashboard requires R to operate. R and RStudio (the integrated development environment for R) can be downloaded by following steps one and two [here](https://posit.co/download/rstudio-desktop/). 
+> **_Note:_** This dashboard requires R to operate. R and RStudio (the integrated development environment for R) can be downloaded by following steps one and two [here](https://posit.co/download/rstudio-desktop/). If needed, older versions of RStudio can be found [here](https://global.rstudio.com/products/rstudio/older-versions/)
 
 ## Using the Default Template ##
 
@@ -12,11 +12,12 @@ This dashboard template uses R to visualize post-fire water quality data. The te
 
 If you're using RStudio:
 - Open the app.R file.
+- If this is the first time running the dashboard, type the following command in the R Console: `install.packages(c("tidyverse","shiny","readxl","bslib"))`
 - Select 'Run App' in the upper right corner.
 
 If you're using the R Console:
 ```
-> install.packages('shiny')
+> install.packages(c("tidyverse","shiny","readxl","bslib"))
 > library(shiny)
 > runApp("Path/To/The/Downloaded/Repo")
 ```
@@ -48,10 +49,10 @@ Required Columns:
 - DataColumn: This column contains the names of the data columns in the `Data/Data_Input.csv` file
 - DisplayName: These values are the names displayed on analyte's tab in the UI.
 - PlotLabel: These values will be used as y-axis labels for the plots.
-- Category: This colum determines what analytes get grouped together within a tab, as well as the name of that tab. The default dashboard assumes four distinct categories, and no more than six analytes within a category. Those assumtions can be changed, see the [modifying the dashboard](#modifying-the-dashboard) section below for details.  
+- Category: This column determines what analytes get grouped together within a tab, as well as the name of that tab. The default dashboard assumes four distinct categories, and no more than six analytes within a category. Those assumptions can be changed, see the [modifying the dashboard](#modifying-the-dashboard) section below for details.  
 
 ### Data/Data_Input.csv ###
-This file contains the data that will be displayed on the dashboard. Details on the contets and formatting of the column are as follows.
+This file contains the data that will be displayed on the dashboard. Details on the contents and formatting of the column are as follows.
 Required Columns:
 - Date: Expected format is mm/dd/yyyy
 - Site: This column is used to separate the data into different sampling locations. 
@@ -64,7 +65,7 @@ This file is assumed to be a `csv` file. If your data needs to be saved as an Ex
 
 ## Modifying the Dashboard ##
 ### Number of Categories ###
-The default dashboard has four categories of analytes. The section of the dashboard that builds the catgeory tabs isn't dynamic, and must be updated to create a different number of category tabs. To update the number of category tabs that appear, modify [this](ui.R#L247-L248) section of the `ui.R` file. Add or remove lines to match the desired number of category tabs. The category_ordered and category_pages list lengths are dynamically updated.
+The default dashboard has four categories of analytes. The section of the dashboard that builds the category tabs isn't dynamic, and must be updated to create a different number of category tabs. To update the number of category tabs that appear, modify [this](ui.R#L247-L248) section of the `ui.R` file. Add or remove lines to match the desired number of category tabs. The category_ordered and category_pages list lengths are dynamically updated.
 
 ### Number of Analytes within a Category ###
 The default dashboard has logic to allow between one and six analytes in each category. If more analytes within a category are needed, [this](ui.R#L202-L213) section of `ui.R` can be updated to handle the desired number of analytes.
@@ -73,4 +74,11 @@ The default dashboard has logic to allow between one and six analytes in each ca
 The default dashboard has one tab, Sampling Methods, that displays an image rather than a plot. To add similar tabs, this can be done by modifying `ui.R`. First a fluidPage needs to be created, as seen [here](ui.R#L220-L224). Then that created fluidPage needs to be included in the list of main tabs, as seen [here](ui.R#L247).
 
 ### Adding Plots ###
-Any kind of plot that R can make can be added to the dashboar. In the `server.R` file, simply add the code needed to generate your plot inside the `server` function. The plot can reference input values from the UI, or can use static values if you'd like to display a specific plot to the user. An example static plot is already built [here](server.R#L238-L254) in the `server.R` file, but that plot is never displayed because it isn't refernced in `ui.R` anywhere. To see the plot, and an example of how to create new plot displays, remove the `#` form [these](ui.R#240-L242) lines to show the static plot.
+Any kind of plot that R can make can be added to the dashboard. In the `server.R` file, simply add the code needed to generate your plot inside the `server` function. The plot can reference input values from the UI, or can use static values if you'd like to display a specific plot to the user. An example static plot is already built [here](server.R#L238-L254) in the `server.R` file, but that plot is never displayed because it isn't referenced in `ui.R` anywhere. To see the plot, and an example of how to create new plot displays, remove the `#` form [these](ui.R#240-L242) lines to show the static plot.
+
+## References ##
+This dashboard template uses the following data set.  
+Struthers, S., Fegel, T., Willi, K., Rhoades, C., Ross, M. R. V., & Steele, B. G. (2023). ROSSyndicate Cameron Peak Fire (CPF) reservoir water quality data: Latest Release: 2021- 11/2023 Dataset (v12.13.23b) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.10372690
+
+## Acknowledgements ##
+Thank you to the CU Boulder Coal Creek sampling team, the Coal Creek Monitoring project stakeholders, and to Adam King for technical support.
