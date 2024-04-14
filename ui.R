@@ -45,15 +45,29 @@ pltH ="600px"
 
 # The CSV file containing the data. Expected date format is mm/dd/YYYY. Other
 #  see the README for expectations on contents.
-data = read_csv("Data/Data_Input.csv") %>%
+data = read_csv("Data/Data_Input.csv")
+yearDigits = str_length(sub(".*/","",data$Date[1]))
+if(yearDigits == 2){
+  data = data %>%
+    mutate(Date = as.Date(Date, format = "%m/%d/%y"),
+           Site = str_to_title(Site)) %>%
+    arrange(Date)
+} else {
+  data = data %>%
   mutate(Date = as.Date(Date, format = "%m/%d/%Y"),
          Site = str_to_title(Site)) %>%
   arrange(Date)
+}
+
+name_conversion = read_xlsx("Data/Data_Names.xlsx")
+
+allAnalytes = name_conversion %>%
+  pull(DataColumn)
 
 # Select the sites with the most data points as the default site values, and save
 #  those values to be the default sites selected by the input.
 start_sites = data %>% 
-  select(Site,DOC) %>%
+  select(Site,allAnalytes[1]) %>%
   group_by(Site) %>%
   summarise(n = n()) %>%
   arrange(-n) %>%
@@ -76,8 +90,6 @@ date_min_post = data %>%
   filter(Date > "2020-01-01") %>%
   pull(Date) %>% min()
 
-name_conversion = read_xlsx("Data/Data_Names.xlsx")
-
 ###
 # Each analyte has its own panel, which appears as a tab along with other 
 #  analytes in the same categor.
@@ -87,9 +99,6 @@ name_conversion = read_xlsx("Data/Data_Names.xlsx")
 #
 # Finally the grouped tabs are combined to a tabset, and added to the main ui
 ###
-
-allAnalytes = name_conversion %>%
-  pull(DataColumn)
 
 # This section builds two tabs for each analyte, one tab for the boxplot
 #  and one tab for the scatterplot. The variable names all use the same pattern,

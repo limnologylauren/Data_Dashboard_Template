@@ -56,10 +56,19 @@ month_six = scale_x_date(date_labels = dateFormat,
                          date_breaks = '6 month')
 
 # Read in the data, and format the date column to date variable type
-data = read_csv("Data/Data_Input.csv") %>%
-  mutate(Date = as.Date(Date, format = "%m/%d/%Y"),
-         Site = str_to_title(Site)) %>%
-  arrange(Date)
+data = read_csv("Data/Data_Input.csv")
+yearDigits = str_length(sub(".*/","",data$Date[1]))
+if(yearDigits == 2){
+  data = data %>%
+    mutate(Date = as.Date(Date, format = "%m/%d/%y"),
+           Site = str_to_title(Site)) %>%
+    arrange(Date)
+} else {
+  data = data %>%
+    mutate(Date = as.Date(Date, format = "%m/%d/%Y"),
+           Site = str_to_title(Site)) %>%
+    arrange(Date)
+}
 
 analytes = names(data)[3:20]
 
