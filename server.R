@@ -69,8 +69,9 @@ if(yearDigits == 2){
            Site = str_to_title(Site)) %>%
     arrange(Date)
 }
-
-analytes = names(data)[3:20]
+name_conversion = read_xlsx("Data/Data_Names.xlsx")
+#analytes = names(data)[3:20]
+analytes = name_conversion %>% pull(DataColumn)
 
 # Transform the data from wide to long, which allows easier plot generation
 data_long = data %>%
