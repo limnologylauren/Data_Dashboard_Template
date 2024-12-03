@@ -82,8 +82,8 @@ start_sites = data %>%
 all_sites = data$Site %>% unique()
 
 # Extract the minimum and maximum date values, to use in the date slider input.
-date_min = data$Date %>% min()
-date_max = data$Date %>% max()
+date_min = data$Date %>% min(na.rm=T)
+date_max = data$Date %>% max(na.rm=T)
 
 # Find the earliest post-fire date, to be used as the default minimum date value
 date_min_post = data %>%
